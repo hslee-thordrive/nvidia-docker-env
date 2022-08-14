@@ -1,0 +1,22 @@
+---
+# Issues:
+#  - "modernize-use-nullptr" has false-positive on comparison of std::chrono::durations; It is resolved on LLVM 13.
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-init-variables,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-c-arrays,
+  modernize-*,
+  -modernize-pass-by-value,
+  -modernize-use-trailing-return-type,
+  -modernize-concat-nested-namespaces,
+  -modernize-use-nullptr,
+WarningsAsErrors: ''
+HeaderFilterRegex: 'caliberator/(include|internal|src|apps/gui/(include|src))/.*$'
+AnalyzeTemporaryDtors: false
+FormatStyle: none

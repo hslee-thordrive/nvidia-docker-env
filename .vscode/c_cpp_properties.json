@@ -1,0 +1,56 @@
+{
+  "configurations": [
+    {
+      "browse": {
+      },
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu17",
+      "cppStandard": "c++20",
+      "includePath": [
+        "/usr/include/**"
+        ,"/opt/ros/kinetic/include/**"
+        ,"/workspaces/av-base/devel/include/**"
+        ,"/workspaces/av-base/av_library/include/**"
+        ,"/workspaces/av-base/src/ad_controller/include/**"
+        ,"/workspaces/av-base/src/avm_grabber/include/**"
+        ,"/workspaces/av-base/src/cadas_grabber/include/**"
+        ,"/workspaces/av-base/src/cam_undistort/include/**"
+        ,"/workspaces/av-base/src/camera_trigger/include/**"
+        ,"/workspaces/av-base/src/cancomm/include/**"
+        ,"/workspaces/av-base/src/k2log/include/**"
+        ,"/workspaces/av-base/src/lib_lidar_hesai/include/**"
+        ,"/workspaces/av-base/src/lib_lidar_ouster_os1/include/**"
+        ,"/workspaces/av-base/src/lidar_grabber/include/**"
+        ,"/workspaces/av-base/src/lidar_hesai_parser/include/**"
+        ,"/workspaces/av-base/src/lidar_hesai_parser_navy/include/**"
+        ,"/workspaces/av-base/src/lidar_ouster_os1_parser/include/**"
+        ,"/workspaces/av-base/src/lidar_parser/include/**"
+        ,"/workspaces/av-base/src/map_reader/include/**"
+        ,"/workspaces/av-base/src/map_inspector/include/**"
+        ,"/workspaces/av-base/src/mimic_module/include/**"
+        ,"/workspaces/av-base/src/mimir_library/include/**"
+        ,"/workspaces/av-base/src/packet_grabber/include/**"
+        ,"/workspaces/av-base/src/pc_diag/include/**"
+        ,"/workspaces/av-base/src/pcd_integrator/include/**"
+        ,"/workspaces/av-base/src/pcd_integrator2/include/**"
+        ,"/workspaces/av-base/src/pcd_integrator_plus/include/**"
+        ,"/workspaces/av-base/src/radar_parser/include/**"
+        ,"/workspaces/av-base/src/radar_visualizer/include/**"
+        ,"/workspaces/av-base/src/risk_assessment/include/**"
+        ,"/workspaces/av-base/src/robot_description/include/**"
+        ,"/workspaces/av-base/src/rt_grabber/include/**"
+        ,"/workspaces/av-base/src/sick_grabber/include/**"
+        ,"/workspaces/av-base/src/sick_parser/include/**"
+        ,"/workspaces/av-base/src/stereo_synchronizer/include/**"
+        ,"/workspaces/av-base/src/stereo_trigger/include/**"
+        ,"/workspaces/av-base/src/thor_diag/include/**"
+        ,"/workspaces/av-base/src/thorbag/include/**"
+        ,"/workspaces/av-base/src/ueye_grabber/include/**"
+        ,"/workspaces/av-base/src/utils/include/**"
+      ]
+    }
+  ],
+  "version": 4
+}
