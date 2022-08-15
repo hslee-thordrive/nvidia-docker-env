@@ -1,4 +1,4 @@
-FROM thorenv/nvidia:base
+FROM thorenv/nvidia-ubuntu-16.04:base
 
 #===>> installs git
 RUN apt-get -qq update \

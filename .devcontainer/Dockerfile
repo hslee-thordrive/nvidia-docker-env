@@ -1,4 +1,4 @@
-FROM thorenv/nvidia:av-base
+FROM thorenv/nvidia-ubuntu-16.04:av-base
 
 #===>> user setup
 ARG USERNAME=thordrive
