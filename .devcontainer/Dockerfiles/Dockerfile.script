@@ -1,0 +1,181 @@
+FROM nvidia/opengl:1.0-glvnd-runtime-ubuntu16.04
+
+#===>> softwares
+RUN apt-get -qq update \
+ && apt-get -qq install -y gedit \
+                           gcovr \
+                           doxygen \
+                           graphviz \
+                           clang-tidy \
+                           mesa-utils \
+                           bash-completion \
+                           python3-pip \
+                           python3-dev \
+                           libssl-dev \
+                           libpcap-dev \
+                           libgl1-mesa-glx \
+                           libyaml-cpp-dev \
+                           libeigen3-dev \
+                           libpcl-dev \
+                           libtbb-dev
+
+#===>> installs git
+RUN apt-get -qq update \
+ && apt-get -qq install -y software-properties-common \
+ && add-apt-repository -y ppa:git-core/ppa \
+ && apt-get upgrade -y \
+ && apt-get update \
+ && apt-get -qq install -y git
+
+#===>> installs git-lfs
+RUN apt-get -qq update \
+ && apt-get -qq install -y curl \
+ && curl -s "https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh" | bash \
+ && apt-get -qq install -y git-lfs
+
+#===>> installs cmake
+ARG CMAKE_VERSION="3.21.1"
+RUN apt-get -qq update
+RUN apt-get -qq install -y curl tar
+RUN curl -L -o /tmp/cmake.tar.gz "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz"
+RUN mkdir -p /tmp/cmake
+RUN tar -xzf /tmp/cmake.tar.gz \
+  	   --directory=/tmp/cmake \
+  	   --strip-components 1 \
+  	   --exclude bin/cmake-gui \
+  	   --exclude doc/cmake \
+  	   --exclude "share/cmake-*/Help"
+RUN cp -rf /tmp/cmake/* /usr
+RUN rm -rf /tmp/cmake
+RUN rm /tmp/cmake.tar.gz
+
+#===>> upgrades gcc
+RUN apt-get -qq update \
+ && apt-get -qq install -y build-essential software-properties-common \
+ && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+ && apt-get -qq update \
+ && apt-get -qq install -y gcc-9 g++-9\
+ && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9 \
+ && update-alternatives --config gcc
+
+#===>> installs ros-kinetic
+ARG ROS_DISTRIBUTION="kinetic"
+RUN apt-get update -qq \
+   && apt-get -qq install -y lsb-release \
+   && sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' \
+   && apt-get -qq install -y curl \
+   && curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - \
+   && apt-get update -qq \
+   && apt-get -qq install -y ros-${ROS_DISTRIBUTION}-desktop-full \
+   && echo "\nsource /opt/ros/${ROS_DISTRIBUTION}/setup.bash" >> ~/.bashrc \
+   && apt-get -qq install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+#===>> format setup
+RUN curl -sL -o "/.clang-format" "https://raw.githubusercontent.com/thordrive/conventions/master/cpp/.clang-format"
+
+#===>> installs sqlite-modern-cpp
+ARG SQLITE_MODERN_CPP_VERSION="3.2"
+RUN apt-get -qq update \
+ && apt-get -qq install -y sqlite3 libsqlite3-dev \
+ && git clone "https://github.com/SqliteModernCpp/sqlite_modern_cpp.git" /tmp/sqlite_modern_cpp \
+      --depth 1 \
+      --branch v${SQLITE_MODERN_CPP_VERSION} \
+      --quiet \
+      --progress \
+ && cd /tmp/sqlite_modern_cpp \
+ && ./configure \
+ && make -j $(nproc) \
+ && make install \
+ && rm -rf /tmp/sqlite_modern_cpp
+
+#===>> installs geographiclib
+ARG GEOGRAPHICLIB_VERSION="1.49"
+RUN apt-get -qq update \
+ && apt-get -qq install -y curl tar wget \
+ && curl -L -o /tmp/geographiclib.tar.gz "https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-${GEOGRAPHICLIB_VERSION}.tar.gz" \
+ && tar -xzf /tmp/geographiclib.tar.gz \
+      --directory=/tmp \
+      --keep-old-files \
+ && mkdir -p /tmp/GeographicLib-1.49/build \
+ && cd /tmp/GeographicLib-1.49/build \
+ && cmake .. \
+ && make -j $(nproc) \
+ && make install \
+ && cd /tmp/GeographicLib-1.49 \
+ && ./configure \
+ && ldconfig \
+ && geographiclib-get-geoids best \
+ && rm -rf /tmp/geographiclib \
+ && rm /tmp/geographiclib.tar.gz
+
+#===>> installs xsens-sdk
+RUN apt-get -qq update \
+ && apt-get -qq install -y --no-install-recommends sharutils \
+ && apt-get -qq install -y curl \
+ && curl -L -o /tmp/xsens.tar.gz https://www.xsens.com/hubfs/Downloads/Software/MTSS/Releases/2021.4.0/MT_Software_Suite_linux-x64_2021.4.tar.gz \
+ && mkdir -p /tmp/xsens \
+ && tar -xzf /tmp/xsens.tar.gz -C /tmp/xsens \
+ && cd /tmp/xsens/MT_Software_Suite_linux-x64_2021.4 \
+ && sh -c 'printf "\n" | /tmp/xsens/MT_Software_Suite_linux-x64_2021.4/mtsdk_linux-x64_2021.4.sh' \
+ && rm -rf /tmp/xsens \
+ && ldconfig
+
+#===>> vcpkg
+RUN git clone https://github.com/Microsoft/vcpkg.git
+
+#===>> installs softwares to build vcpkg dependenceis
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	bison \
+	gperf \
+	python3-distutils \
+	autoconf \
+	autoconf-archive \
+	automake \
+	libtool \
+	libtool-bin \
+	'^libxcb.*-dev' \
+	libx11-xcb-dev \
+	libglu1-mesa-dev \
+	libxrender-dev \
+	libxi-dev \
+	libxkbcommon-dev \
+	libxkbcommon-x11-dev
+
+#===>> builds dependencies
+RUN sudo -u thor ${VCPKG_ROOT}/vcpkg --binarysource=clear install "qtbase" \
+		&& rm -rf ${VCPKG_ROOT}/buildtrees \
+		&& rm -rf ${VCPKG_ROOT}/packages \
+		&& rm -rf ${VCPKG_DOWNLOADS}/*
+
+RUN sudo -u thor ${VCPKG_ROOT}/vcpkg --binarysource=clear install "qtquick3d" \
+		&& rm -rf ${VCPKG_ROOT}/buildtrees \
+		&& rm -rf ${VCPKG_ROOT}/packages \
+		&& rm -rf ${VCPKG_DOWNLOADS}/*
+
+RUN sudo -u thor ${VCPKG_ROOT}/vcpkg --binarysource=clear install "pcl" \
+		&& rm -rf ${VCPKG_ROOT}/buildtrees \
+		&& rm -rf ${VCPKG_ROOT}/packages \
+		&& rm -rf ${VCPKG_DOWNLOADS}/*
+
+RUN sudo -u thor ${VCPKG_ROOT}/vcpkg --binarysource=clear install "ceres[lapack, cxsparse, suitesparse]" \
+	&& rm -rf ${VCPKG_ROOT}/buildtrees \
+	&& rm -rf ${VCPKG_ROOT}/packages \
+	&& rm -rf ${VCPKG_DOWNLOADS}/*
+
+#===>> installs dependencies and dev-tools.
+RUN apt-get -qq update \
+	&& apt-get -qq install -y --no-install-recommends \
+		libyaml-cpp-dev \
+		libtbb-dev \
+		libpcap-dev \
+		python3-pip \
+		clang-tidy \
+		doxygen \
+		graphviz \
+		gcovr \
+	&& apt-get clean -y \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install \
+		plotly \
+		pandas

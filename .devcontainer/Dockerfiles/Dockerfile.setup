@@ -1,5 +1,3 @@
-FROM thorenv/nvidia:av-base
-
 #===>> user setup
 ARG USERNAME=thordrive
 ARG USER_UID=1000
