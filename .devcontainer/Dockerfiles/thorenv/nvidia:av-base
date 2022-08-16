@@ -17,18 +17,18 @@ RUN apt-get -qq update \
 #===>> installs cmake
 ARG CMAKE_VERSION="3.21.1"
 RUN apt-get -qq update
-RUN apt-get -qq install -y curl tar
-RUN curl -L -o /tmp/cmake.tar.gz "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz"
-RUN mkdir -p /tmp/cmake
-RUN tar -xzf /tmp/cmake.tar.gz \
-  	   --directory=/tmp/cmake \
-  	   --strip-components 1 \
-  	   --exclude bin/cmake-gui \
-  	   --exclude doc/cmake \
-  	   --exclude "share/cmake-*/Help"
-RUN cp -rf /tmp/cmake/* /usr
-RUN rm -rf /tmp/cmake
-RUN rm /tmp/cmake.tar.gz
+ && apt-get -qq install -y curl tar \
+ && curl -L -o /tmp/cmake.tar.gz "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" \
+ && mkdir -p /tmp/cmake \
+ && tar -xzf /tmp/cmake.tar.gz \ \
+     --directory=/tmp/cmake \
+     --strip-components 1 \
+     --exclude bin/cmake-gui \
+     --exclude doc/cmake \
+     --exclude "share/cmake-*/Help" \
+ && cp -rf /tmp/cmake/* /usr \
+ && rm -rf /tmp/cmake \
+ && rm /tmp/cmake.tar.gz
 
 #===>> upgrades gcc
 RUN apt-get -qq update \
@@ -50,6 +50,41 @@ RUN apt-get update -qq \
    && apt-get -qq install -y ros-${ROS_DISTRIBUTION}-desktop-full \
    && echo "\nsource /opt/ros/${ROS_DISTRIBUTION}/setup.bash" >> ~/.bashrc \
    && apt-get -qq install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+#===>> installs sqlite-modern-cpp
+ARG SQLITE_MODERN_CPP_VERSION="3.2"
+RUN apt-get -qq update \
+ && apt-get -qq install -y sqlite3 libsqlite3-dev \
+ && git clone "https://github.com/SqliteModernCpp/sqlite_modern_cpp.git" /tmp/sqlite_modern_cpp \
+     --depth 1 \
+     --branch v${SQLITE_MODERN_CPP_VERSION} \
+     --quiet \
+     --progress \
+ && cd /tmp/sqlite_modern_cpp \
+ && ./configure \
+ && make -j $(nproc) \
+ && make install \
+ && rm -rf /tmp/sqlite_modern_cpp
+
+#===>> installs geographiclib
+ARG GEOGRAPHICLIB_VERSION="1.49"
+RUN apt-get -qq update \
+ && apt-get -qq install -y curl tar wget \
+ && curl -L -o /tmp/geographiclib.tar.gz "https://sourceforge.net/projects/geographiclib/files/distrib/GeographicLib-${GEOGRAPHICLIB_VERSION}.tar.gz" \
+ && tar -xzf /tmp/geographiclib.tar.gz \
+     --directory=/tmp \
+     --keep-old-files \
+ && mkdir -p /tmp/GeographicLib-1.49/build \
+ && cd /tmp/GeographicLib-1.49/build \
+ && cmake .. \
+ && make -j $(nproc) \
+ && make install \
+ && cd /tmp/GeographicLib-1.49 \
+ && ./configure \
+ && ldconfig \
+ && geographiclib-get-geoids best \
+ && rm -rf /tmp/geographiclib \
+ && rm /tmp/geographiclib.tar.gz
 
 RUN apt-get -qq update \
  && apt-get -qq install -y gedit \
