@@ -16,11 +16,11 @@ RUN apt-get -qq update \
 
 #===>> installs cmake
 ARG CMAKE_VERSION="3.21.1"
-RUN apt-get -qq update
+RUN apt-get -qq update \
  && apt-get -qq install -y curl tar \
  && curl -L -o /tmp/cmake.tar.gz "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.tar.gz" \
  && mkdir -p /tmp/cmake \
- && tar -xzf /tmp/cmake.tar.gz \ \
+ && tar -xzf /tmp/cmake.tar.gz \
      --directory=/tmp/cmake \
      --strip-components 1 \
      --exclude bin/cmake-gui \
